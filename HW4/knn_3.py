@@ -5,19 +5,13 @@ point3 = (2, 4.7)
 point4 = (0.9, 2.9)
 point5 = (5.1, 11)
 
-training_data = [point1, point2, point3, point4, point5]
-#I want to add all the first elements of each points in a list called instances
-instances = [point[0] for point in training_data]
-labels = [point[1] for point in training_data]
-
-
 def euclidian_distance(instance1, instance2):
     """
     Calculates the Euclidean distance between two instances.
 
     Parameters:
-    instance1 (tuple): The coordinates of the first instance.
-    instance2 (tuple): The coordinates of the second instance.
+    instance1 (tuple): The coordinates of the first instance.(x,y)
+    instance2 (tuple): The coordinates of the second instance.(x,y)
 
     Returns:
     float: The Euclidean distance between the two instances.
@@ -47,15 +41,19 @@ def knn_regression_predict(instance, training_data, labels, k=3):
         dist = euclidian_distance(instance, data)
         distances.append((dist, label))
 
-    distances.sort(key=lambda x: x[0])
+    distances.sort(key=lambda x: x[0]) #Sorts the distances in ascending order based on the first element
     neighbors = distances[:k]
-    print(neighbors)
 
     labels = [label for (_, label) in neighbors] #This gives us just the labels without the distances
 
     return sum(labels) / k
 
 
-# Example usage
-print(knn_regression_predict((1.5,), training_data, labels))
+
+training_data = [point1, point2, point3, point4, point5] #((x,y),(x,y),(x,y))
+#I want to add all the first elements of each points in a list called instances
+labels = [point[1] for point in training_data]
+
+print("The predicted label for (1.5) :" , knn_regression_predict((1.5,), training_data, labels))
+print("The predicted label for (4.5) :" , knn_regression_predict((4.5,), training_data, labels))
 
