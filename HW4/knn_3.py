@@ -53,7 +53,7 @@ def weighted_knn_regression_predict(instance, training_data, labels, k=3):
 
     return weighted_sum / total_weight
 
-print("The weighted predicted label for (1.5) :" , weighted_knn_regression_predict((1.5,), training_data, labels))
+print("\nThe weighted predicted label for (1.5) :" , weighted_knn_regression_predict((1.5,), training_data, labels))
 print("The weighted predicted label for (4.5) :" , weighted_knn_regression_predict((4.5,), training_data, labels))
 
 #Adding a graphical overview
