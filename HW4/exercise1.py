@@ -2,8 +2,8 @@
 For this question, we need to calculate the euclidean distance between the instances  
 '''
 
-def euclidian_distance(x,y):
-    return (x-y)**2
+def euclidian_distance(point1, point2):
+    return sum((x-y)**2 for x,y in zip(point1, point2))**0.5
 
 #Declare a list of points
 point1 = [(-3,5), ("+")]
@@ -17,12 +17,12 @@ instance2 = (-1,5)
 #Calculate the euclidean distance between the points and the instance
 print("Distances for Instance1:")
 for point in [point1, point2, point3, point4]:
-    distance = euclidian_distance(instance1[0],point[0][0]) + euclidian_distance(instance1[1],point[0][1])
+    distance = euclidian_distance(instance1,point[0])
     print("Distance to {}: {:.2f}".format(point[1], distance))
 
 print("\nDistances for Instance2:")
 for point in [point1, point2, point3, point4]:
-    distance = euclidian_distance(instance2[0],point[0][0]) + euclidian_distance(instance2[1],point[0][1])
+    distance = euclidian_distance(instance2,point[0])
     print("Distance to {}: {:.2f}".format(point[1], distance))
 
 '''
