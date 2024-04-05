@@ -18,17 +18,17 @@ instance2 = (-1,5)
 print("Distances for Instance1:")
 for point in [point1, point2, point3, point4]:
     distance = euclidian_distance(instance1,point[0])
-    print("Distance to {}: {:.2f}".format(point[1], distance))
+    print("Distance to {}: {:.2f}".format(point, distance))
 
 print("\nDistances for Instance2:")
 for point in [point1, point2, point3, point4]:
     distance = euclidian_distance(instance2,point[0])
-    print("Distance to {}: {:.2f}".format(point[1], distance))
+    print("Distance to {}: {:.2f}".format(point, distance))
 
 '''
-a. The 1-nearest neighbor to instance (-2,0) is point 2, which is +.
-   The 1-nearest neighbor to instance (-1,5) is point 3, which is -.
+a. The 1-nearest neighbor to instance (-2,0) is point 2 ((-4,-2),+), which is +.
+   The 1-nearest neighbor to instance (-1,5) is point 1 ((-3,5),+), which is +.
 
-b. The 3-nearest neighbor to instance (-2,0) is point 1, which is +.
-   The 3-nearest neighbor to instance (-1,5) is point 4, which is -.
+b. The 3-nearest neighbor to instance (-2,0) are point 2,3,1 ((-4,-2),+),((2,1),-), ((-3,5),+), which is the class +.
+   The 3-nearest neighbor to instance (-1,5) is point 1,3,4,((-3,5),+),((2,1),-),((4,3),-)), which is the class -.
 '''

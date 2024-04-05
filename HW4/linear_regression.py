@@ -35,5 +35,5 @@ for i in range(num_iterations):
 
     print(f"Iteration {i+1}: w0 = {wo}, w1 = {w1}")
 
-print("\n The predicted value at the point (1.5) is : ", predict_label(1.5, wo, w1))
+print("\nThe predicted value at the point (1.5) is : ", predict_label(1.5, wo, w1))
 print("The predicted value at the point (4.5) is : ", predict_label(4.5, wo, w1))
