@@ -1,6 +1,8 @@
 from ucimlrepo import fetch_ucirepo 
 from sklearn.model_selection import train_test_split
-import csv
+from sklearn.linear_model import ElasticNet
+from sklearn.metrics import mean_squared_error
+import numpy as np
 
 # fetch dataset 
 abalone = fetch_ucirepo(id=1) 
@@ -42,3 +44,123 @@ X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2,
 # Split the training data into training and validation sets
 X_train_final, X_valid, y_train_final, y_valid = train_test_split(X_train, y_train, test_size=0.25, random_state=42)
 print(len(X_train_final), len(X_valid), len(y_train_final), len(y_valid))
+
+# Prepare the grid of parameters
+lambda1_values = [0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
+lambda2_values = [0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
+
+# Create the grid as follows
+parameter_grid = []
+for l1 in lambda1_values:
+    for l2 in lambda2_values:
+        if l2 == 0 and l1 != 0:
+            # In this case, we have an L1 penalty only, so l1_ratio is 1.
+            parameter_grid.append((l1, 1))
+        elif l1 == 0 and l2 != 0:
+            # Here, we have an L2 penalty only, so l1_ratio is 0.
+            parameter_grid.append((l2, 0))
+        elif l1 == 0 and l2 == 0:
+            # No regularization
+            parameter_grid.append((0, 0))
+        else:
+            # Both L1 and L2 penalties are present
+            alpha = l1 + l2
+            l1_ratio = l1 / (l1 + l2)
+            parameter_grid.append((alpha, l1_ratio))
+
+# Initialize variables to store the best parameters and corresponding RMSE
+best_alpha = None
+best_l1_ratio = None
+best_rmse = float('inf')
+best_model = None
+
+# Initialize a list to store MSE for each model
+model_performance = [] #for question b, regarding the training set predictions
+validation_performance = []
+
+
+# Iterate over the parameter grid
+for alpha, l1_ratio in parameter_grid:
+    # Create and fit the ElasticNet model
+    model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, max_iter=10000)
+    model.fit(X_train_final, y_train_final)
+    
+    # Predict on the training set
+    y_train_pred = model.predict(X_train_final) #the prediction with that model
+    mse_train = mean_squared_error(y_train_final, y_train_pred)
+    
+    # Predict on the validation set
+    y_val_pred = model.predict(X_valid)
+    mse_val = mean_squared_error(y_valid, y_val_pred)
+
+    
+    # Store the alpha, l1_ratio, and training MSE in the list
+    model_performance.append((alpha, l1_ratio, mse_train))
+    validation_performance.append((alpha, l1_ratio, mse_val))
+
+    # Calculate the RMSE for the current model on the validation data to see how the model performs on new data
+    rmse_val = mean_squared_error(y_valid, y_val_pred, squared=False)
+    # If this model is the best so far, based on validation RMSE, store its parameters and RMSE
+    if rmse_val < best_rmse:
+        best_alpha = alpha
+        best_l1_ratio = l1_ratio
+        best_rmse = rmse_val
+        best_model = model
+
+# Sort the list by training MSE so you can report it
+model_performance.sort(key=lambda x: x[2])
+validation_performance.sort(key=lambda x: x[2])
+
+
+# Report the best model's parameters and RMSE QA
+print(f"\nBest model based on validation RMSE: alpha={best_alpha}, l1_ratio={best_l1_ratio}, RMSE: {best_rmse}")
+print("\n")
+
+# Report all models' MSE on the training set QB
+for alpha, l1_ratio, mse_train in model_performance:
+    print(f"alpha: {alpha}, l1_ratio: {l1_ratio}, Training MSE: {mse_train}")
+
+print("\n")
+#QC
+for alpha, l1_ratio, mse_val in validation_performance:
+    print(f"alpha: {alpha}, l1_ratio: {l1_ratio}, Validation MSE: {mse_val}")
+
+print("\n")
+#QD
+best_training_model = model_performance[0]
+best_validation_model = validation_performance[0]
+
+# Extract the parameters and calculate lambda1 and lambda2 for the best training model
+alpha_training, l1_ratio_training, _ = best_training_model
+lambda1_training = alpha_training * l1_ratio_training
+lambda2_training = alpha_training * (1 - l1_ratio_training)
+
+# the best validation model
+alpha_validation, l1_ratio_validation, _ = best_validation_model
+lambda1_validation = alpha_validation * l1_ratio_validation
+lambda2_validation = alpha_validation * (1 - l1_ratio_validation)
+
+# Report
+print(f"Best model on training data: lambda1={lambda1_training}, lambda2={lambda2_training}")
+print(f"Best model on validation data: lambda1={lambda1_validation}, lambda2={lambda2_validation}")
+
+#QE
+print("-------------------------------------------")
+
+X_train_val_combined = X_train_final + X_valid
+y_train_val_combined = y_train_final + y_valid
+
+# Assuming alpha_best and l1_ratio_best are the best hyperparameters you've found
+model_best = ElasticNet(alpha=alpha_validation, l1_ratio=l1_ratio_validation, max_iter=10000)
+model_best.fit(X_train_val_combined, y_train_val_combined)
+
+# Make predictions on the test set
+y_test_pred = model_best.predict(X_test)
+
+# Calculate the MSE on the test set
+mse_test = mean_squared_error(y_test, y_test_pred)
+
+# Print the MSE on the test set
+print(f"MSE on the test set: {mse_test}")
+
+
