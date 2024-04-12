@@ -2,6 +2,7 @@ from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import precision_score
 
 # fetch dataset 
 rice_cammeo_and_osmancik = fetch_ucirepo(id=545) 
@@ -27,13 +28,12 @@ X_train_final, X_valid, y_train_final, y_valid = train_test_split(X_train, y_tra
 # (a) Fit two logistic regression models
 
 # Model with L2 regularization (default)
-model_l2 = LogisticRegression(random_state=42)
+model_l2 = LogisticRegression(penalty='l2', random_state=42)
 model_l2.fit(X_train_final, y_train_final)
 
 # Model with no regularization
-model_none = LogisticRegression(penalty='l2', C=1e9, random_state=42)
+model_none = LogisticRegression(penalty=None, random_state=42)
 model_none.fit(X_train_final, y_train_final)
-
 
 # (b) Make predictions and evaluate the models
 
@@ -54,7 +54,34 @@ conf_matrix_none = confusion_matrix(y_valid, y_pred_none)
 # Printing the results
 print(f"Empirical risk (0-1 loss) with L2 regularization: {risk_l2}")
 print(f"Empirical risk (0-1 loss) with no regularization: {risk_none}")
-print("Confusion matrix with L2 regularization:")
+print("\nConfusion matrix with L2 regularization:")
 print(conf_matrix_l2)
 print("Confusion matrix with no regularization:")
 print(conf_matrix_none)
+
+# (c) Analysis of performance
+precision_l2 = precision_score(y_valid, y_pred_l2)
+precision_none = precision_score(y_valid, y_pred_none)
+print(f"\nPrecision with L2 regularization: {precision_l2}")
+print(f"Precision with no regularization: {precision_none}")
+
+
+# Combine the training and validation sets
+X_train_val = X_train_final + X_valid  
+y_train_val = y_train_final.tolist() + y_valid.tolist()
+
+# Train a new logistic regression model on the combined training and validation set
+model_final = LogisticRegression(random_state=42)
+model_final.fit(X_train_val, y_train_val)
+
+# Make a prediction on the test set
+y_pred_test = model_final.predict(X_test)
+
+# Evaluate the model's performance
+risk_test = 1 - accuracy_score(y_test, y_pred_test)
+conf_matrix_test = confusion_matrix(y_test, y_pred_test)
+
+# Print out the final empirical risk and confusion matrix
+print(f"\nFinal empirical risk (0-1 loss) on the test set: {risk_test}")
+print("Final confusion matrix on the test set:")
+print(conf_matrix_test)
