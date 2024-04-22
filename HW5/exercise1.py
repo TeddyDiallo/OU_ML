@@ -4,6 +4,8 @@ from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 import numpy as np
+from sklearn.linear_model import Ridge
+import pandas as pd
 
 abalone = fetch_ucirepo(id=1) 
   
@@ -131,7 +133,7 @@ print("-------------------------------------------")
 X_train_val_combined = X_train_final + X_valid
 y_train_val_combined = y_train_final.iloc[:, 0].tolist() + y_valid.iloc[:, 0].tolist()
 
-# Assuming alpha_best and l1_ratio_best are the best hyperparameters you've found
+'''# Assuming alpha_best and l1_ratio_best are the best hyperparameters you've found
 model_best = ElasticNet(alpha=alpha_validation, l1_ratio=l1_ratio_validation, max_iter=10000)
 model_best.fit(X_train_val_combined, y_train_val_combined)
 
@@ -142,4 +144,32 @@ y_test_pred = model_best.predict(X_test)
 mse_test = mean_squared_error(y_test, y_test_pred)
 
 # Print the MSE on the test set
+print(f"MSE on the test set: {mse_test}")'''
+
+
+# Instantiate the Ridge regression model
+model_ridge = Ridge(alpha=alpha_validation, max_iter=10000, solver='auto')
+
+# Now you can fit this model to your data
+model_ridge.fit(X_train_val_combined, y_train_val_combined)
+y_test_pred = model_ridge.predict(X_test)
+mse_test = mean_squared_error(y_test, y_test_pred)
 print(f"MSE on the test set: {mse_test}")
+
+
+
+#Printing out the dataset the broken down dataset
+# Convert the subsets to pandas DataFrames
+train_df = pd.DataFrame(X_train_final)
+valid_df = pd.DataFrame(X_valid)
+test_df = pd.DataFrame(X_test)
+
+# Add the target variable to each DataFrame
+train_df['target'] = y_train_final
+valid_df['target'] = y_valid
+test_df['target'] = y_test
+
+# Save the DataFrames to CSV files
+train_df.to_csv('train_data.csv', index=False)
+valid_df.to_csv('valid_data.csv', index=False)
+test_df.to_csv('test_data.csv', index=False)

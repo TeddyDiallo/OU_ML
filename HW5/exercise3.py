@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import precision_score
+import pandas as pd
 
 # fetch dataset 
 rice_cammeo_and_osmancik = fetch_ucirepo(id=545) 
@@ -71,7 +72,7 @@ X_train_val = X_train_final + X_valid
 y_train_val = y_train_final.tolist() + y_valid.tolist()
 
 # Train a new logistic regression model on the combined training and validation set
-model_final = LogisticRegression(random_state=42)
+model_final = LogisticRegression(random_state=52)
 model_final.fit(X_train_val, y_train_val)
 
 # Make a prediction on the test set
@@ -85,3 +86,19 @@ conf_matrix_test = confusion_matrix(y_test, y_pred_test)
 print(f"\nFinal empirical risk (0-1 loss) on the test set: {risk_test}")
 print("Final confusion matrix on the test set:")
 print(conf_matrix_test)
+
+#Printing out the dataset the broken down dataset
+# Convert the subsets to pandas DataFrames
+train_df = pd.DataFrame(X_train_final)
+valid_df = pd.DataFrame(X_valid)
+test_df = pd.DataFrame(X_test)
+
+# Add the target variable to each DataFrame
+train_df['target'] = y_train_final
+valid_df['target'] = y_valid
+test_df['target'] = y_test
+
+# Save the DataFrames to CSV files
+train_df.to_csv('train_data3.csv', index=False)
+valid_df.to_csv('valid_data3.csv', index=False)
+test_df.to_csv('test_data3.csv', index=False)
